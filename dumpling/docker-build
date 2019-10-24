@@ -18,6 +18,7 @@ apt-get install -qy --no-install-recommends \
    gcc \
    git \
    graphviz \
+   libffi-dev \
    python3-dev \
    python3-gdal \
    python3-pip \
@@ -166,6 +167,7 @@ echo '. /srv/bash_logout' >> /etc/bash.bash.logout
 ln -s /srv/gitconfig /etc/.
 mkdir /etc/jupyter
 ln -s /srv/jupyter_notebook_config.py /etc/jupyter/.
+ln -s /srv/lab-asst /usr/bin/local/lab-asst
 
 # Default to UTF-8 locale.
 echo 'en_US.UTF-8 UTF-8' > /etc/locale.gen
