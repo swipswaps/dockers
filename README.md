@@ -26,7 +26,7 @@ lab-asst can also be used to close currently running instances. lab-asst
 will attempt to close the instance and warn the user if it appears that there is
 unsaved work that could be lost on close.
 
-Kernels should be stopped by stopping the parent ID associated with the kernel. 
+Kernels should be stopped by stopping the parent ID associated with the kernel.
 Stopping the kernel ID will just cause Jupyter to restart the kernel.
 
 ### Usage

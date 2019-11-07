@@ -167,7 +167,7 @@ echo '. /srv/bash_logout' >> /etc/bash.bash.logout
 ln -s /srv/gitconfig /etc/.
 mkdir /etc/jupyter
 ln -s /srv/jupyter_notebook_config.py /etc/jupyter/.
-ln -s /srv/lab-asst /usr/bin/local/lab-asst
+ln -s /srv/lab-asst /usr/local/bin/lab-asst
 
 # Default to UTF-8 locale.
 echo 'en_US.UTF-8 UTF-8' > /etc/locale.gen

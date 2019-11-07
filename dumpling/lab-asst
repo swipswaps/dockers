@@ -20,21 +20,20 @@ function list() {
     # sed: turn unknown number of whitespace into one space
     running=$(ps -axo pid,ppid,%cpu,%mem,start_time,args | grep jupyter | grep -v grep | sed -r 's/\s+ / /g')
     echo "PID PARENT CPU MEM TIME_STARTED TYPE DIRECTORY URL" >> $OUTPUT
-    for item in ${running[@]}; do
+    for item in "${running[@]}"; do
         pid=$(echo $item | cut -d ' ' -f2)
         parent=$(echo $item | cut -d ' ' -f3)
         cpu=$(echo $item | cut -d ' ' -f4)
         mem=$(echo $item | cut -d ' ' -f5)
         time=$(echo $item | cut -d ' ' -f6)
-        working_dir=$(ls -lad /proc/$pid/cwd | cut -d ' ' -f11)
-        grep_test=$(ps -aux | grep $pid | grep -v grep | sed -r 's/\s+ / /g' | grep ipykernel_launcher)
+        working_dir=$(ls -lad /proc/$pid/cwd | cut -d ' ' -f12)
+        grep_test=$(pgrep ipykernel_launcher 2> /dev/null >/dev/null)
         if [ $? -eq 0 ]; then
             type="kernel"
         else
             type="notebook"
             # port number needed to determine what URL this notebook is using, pulled from config file
             # that corresponds to listening port number
-            port=$(lsof -p $pid 2>/dev/null | grep LISTEN | cut -d ':' -f2 | cut -d ' ' -f1)
             file="/home/$USER/.local/share/jupyter/runtime/nbserver-$pid.json"
             token=$(cat $file 2>/dev/null | grep token | cut -d ':' -f2- | tr -d '"' | tr -d ' ' | tr -d ',')
             part_url=$(cat $file 2>/dev/null | grep http | cut -d ':' -f2- | tr -d '"' | tr -d ' ')
@@ -54,7 +53,7 @@ function list() {
 
 function stop() {
     echo "Attempting to stop process gracefully..."
-    kill $1
+    kill "$1"
     sleep 2
     result=$(ps -aux | grep $1 | grep jupyter)
     # if pid is still around, prompt user for decision
@@ -62,10 +61,10 @@ function stop() {
         echo "Warning: this notebook is not gracefully closing, which usually means that you have unsaved work."
         echo "It is recommended that you save your work and close manually."
         printf "Would you like to forcefully close the notebook? (y/N) "
-        read answer
-        if [ "$answer" == "y" -o "$answer" == "Y" ]; then
+        read -r answer
+        if [ "$answer" == "y" ] || [ "$answer" == "Y" ]; then
             echo "Force closing process..."
-            kill -9 $1
+            kill -9 "$1"
         else
             return
         fi
@@ -86,7 +85,7 @@ while getopts ":ls:" options; do
             list
             ;;
         s)
-            stop $2
+            stop "$2"
             ;;
         :)
             echo "Error: -${OPTARG} requires an argument."
@@ -94,7 +93,7 @@ while getopts ":ls:" options; do
             ;;
         
         *)
-            echo $options
+            echo "$options"
             usage
             ;;
     esac
