@@ -67,6 +67,7 @@ function stop() {
     sleep 2
     # if pid is still around, prompt user for decision
     # shellcheck disable=SC2009
+    # shellcheck disable=SC2086
     if ps -aux | grep $1 | grep jupyter 2>/dev/null >/dev/null; then
         echo "Warning: this notebook is not gracefully closing, which usually means that you have unsaved work."
         echo "It is recommended that you save your work and close manually."
