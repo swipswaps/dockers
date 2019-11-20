@@ -14,30 +14,26 @@ function usage() {
 
 function list() {
     echo "Gathering information..."
-    # array item separator is newline instead of space
-    local IFS=$'\n'
     OUTPUT=/tmp/output
+    echo "PID PARENT CPU MEM TIME_STARTED TYPE DIRECTORY URL" >> $OUTPUT
     # sed: turn unknown number of whitespace into one space
     # shellcheck disable=SC2009
-    running=$(ps -axo pid,ppid,%cpu,%mem,start_time,args | grep jupyter | grep -v grep | sed -r 's/\s+ / /g')
-    echo "PID PARENT CPU MEM TIME_STARTED TYPE DIRECTORY URL" >> $OUTPUT
-    for item in "${running[@]}"; do
+    ps -axo pid,ppid,%cpu,%mem,start_time,args | grep jupyter | grep -v grep | sed -r 's/\s+ / /g' | while read -r item
+    do
 	# shellcheck disable=SC2086
-	pid=$(echo $item | cut -d ' ' -f2)
+	pid=$(echo $item | cut -d ' ' -f1)
 	# shellcheck disable=SC2086
-	parent=$(echo $item | cut -d ' ' -f3)
+	parent=$(echo $item | cut -d ' ' -f2)
 	# shellcheck disable=SC2086
-	cpu=$(echo $item | cut -d ' ' -f4)
+	cpu=$(echo $item | cut -d ' ' -f3)
 	# shellcheck disable=SC2086
-	mem=$(echo $item | cut -d ' ' -f5)
+	mem=$(echo $item | cut -d ' ' -f4)
         # shellcheck disable=SC2086
-	time=$(echo $item | cut -d ' ' -f6)
+	time=$(echo $item | cut -d ' ' -f5)
         # shellcheck disable=SC2012
 	# shellcheck disable=SC2086
-	working_dir=$(ls -lad /proc/$pid/cwd | cut -d ' ' -f12)
-        # shellcheck disable=SC2034
-	grep_test=$(pgrep ipykernel_launcher 2> /dev/null >/dev/null)
-        if [ $? -eq 0 ]; then
+	working_dir=$(ls -lad /proc/$pid/cwd | cut -d ' ' -f11)
+        if pgrep -f -P "$parent" ipykernel_launcher 2> /dev/null >/dev/null; then
             type="kernel"
         else
             type="notebook"
@@ -74,7 +70,7 @@ function stop() {
     # shellcheck disable=SC2086
     result=$(ps -aux | grep $1 | grep jupyter)
     # if pid is still around, prompt user for decision
-    if [ $? -eq 0 ]; then
+    if ps -aux | grep $1 | grep jupyter 2>/dev/null >/dev/null; then
         echo "Warning: this notebook is not gracefully closing, which usually means that you have unsaved work."
         echo "It is recommended that you save your work and close manually."
         printf "Would you like to forcefully close the notebook? (y/N) "
