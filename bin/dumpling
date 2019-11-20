@@ -36,7 +36,7 @@ if [ "$#" -ne 0 ]; then
 fi
 
 if [ -n "$(docker ps -q -f "name=${name}")" ]; then
-    docker exec $name "lab-asst" -l
+    docker exec "$name" "lab-asst" -l
     exec docker attach "$name"
 else
     exec docker run -it --rm --name "$name" \

@@ -18,16 +18,25 @@ function list() {
     local IFS=$'\n'
     OUTPUT=/tmp/output
     # sed: turn unknown number of whitespace into one space
+    # shellcheck disable=SC2009
     running=$(ps -axo pid,ppid,%cpu,%mem,start_time,args | grep jupyter | grep -v grep | sed -r 's/\s+ / /g')
     echo "PID PARENT CPU MEM TIME_STARTED TYPE DIRECTORY URL" >> $OUTPUT
     for item in "${running[@]}"; do
-        pid=$(echo $item | cut -d ' ' -f2)
-        parent=$(echo $item | cut -d ' ' -f3)
-        cpu=$(echo $item | cut -d ' ' -f4)
-        mem=$(echo $item | cut -d ' ' -f5)
-        time=$(echo $item | cut -d ' ' -f6)
-        working_dir=$(ls -lad /proc/$pid/cwd | cut -d ' ' -f12)
-        grep_test=$(pgrep ipykernel_launcher 2> /dev/null >/dev/null)
+	# shellcheck disable=SC2086
+	pid=$(echo $item | cut -d ' ' -f2)
+	# shellcheck disable=SC2086
+	parent=$(echo $item | cut -d ' ' -f3)
+	# shellcheck disable=SC2086
+	cpu=$(echo $item | cut -d ' ' -f4)
+	# shellcheck disable=SC2086
+	mem=$(echo $item | cut -d ' ' -f5)
+        # shellcheck disable=SC2086
+	time=$(echo $item | cut -d ' ' -f6)
+        # shellcheck disable=SC2012
+	# shellcheck disable=SC2086
+	working_dir=$(ls -lad /proc/$pid/cwd | cut -d ' ' -f12)
+        # shellcheck disable=SC2034
+	grep_test=$(pgrep ipykernel_launcher 2> /dev/null >/dev/null)
         if [ $? -eq 0 ]; then
             type="kernel"
         else
@@ -35,8 +44,12 @@ function list() {
             # port number needed to determine what URL this notebook is using, pulled from config file
             # that corresponds to listening port number
             file="/home/$USER/.local/share/jupyter/runtime/nbserver-$pid.json"
-            token=$(cat $file 2>/dev/null | grep token | cut -d ':' -f2- | tr -d '"' | tr -d ' ' | tr -d ',')
-            part_url=$(cat $file 2>/dev/null | grep http | cut -d ':' -f2- | tr -d '"' | tr -d ' ')
+            # shellcheck disable=SC2086
+	    # shellcheck disable=SC2002
+	    token=$(cat $file 2>/dev/null | grep token | cut -d ':' -f2- | tr -d '"' | tr -d ' ' | tr -d ',')
+            # shellcheck disable=SC2086
+	    # shellcheck disable=SC2002
+	    part_url=$(cat $file 2>/dev/null | grep http | cut -d ':' -f2- | tr -d '"' | tr -d ' ')
             url="$part_url?token=$token"
 
         fi
@@ -47,6 +60,7 @@ function list() {
         fi
     done
     # organize output into columns
+    # shellcheck disable=SC2002
     cat $OUTPUT | column -t
     rm /tmp/output
 }
@@ -55,6 +69,9 @@ function stop() {
     echo "Attempting to stop process gracefully..."
     kill "$1"
     sleep 2
+    # shellcheck disable=SC2034
+    # shellcheck disable=SC2009
+    # shellcheck disable=SC2086
     result=$(ps -aux | grep $1 | grep jupyter)
     # if pid is still around, prompt user for decision
     if [ $? -eq 0 ]; then
@@ -91,7 +108,7 @@ while getopts ":ls:" options; do
             echo "Error: -${OPTARG} requires an argument."
             usage
             ;;
-        
+
         *)
             echo "$options"
             usage
