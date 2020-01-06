@@ -70,6 +70,7 @@ six==1.13.0
 sqlalchemy-redshift==0.7.5
 statsmodels==0.10.2
 swifter==0.296
+tabula-py==2.0.0
 tabulate==0.8.6
 tenacity==6.0.0
 tensorflow==2.0.0b1
