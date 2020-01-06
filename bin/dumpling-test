@@ -23,9 +23,6 @@ dumpling bash -c "python -c 'from graphviz import Digraph; dot=Digraph(); dot.no
 # jenkspy
 dumpling bash -c 'pip install jenkspy && python -c "import jenkspy"'
 
-# lab-asst
-dumpling bash -c '/usr/local/bin/lab-asst | grep Usage'
-
 # numpy
 dumpling bash -c 'python -c "import numpy as np; assert np.array([1]) + np.array([1]) == 2"'
 dumpling bash -c 'find /usr/local -name "libopenblas*.so"'

@@ -37,7 +37,7 @@ fi
 
 if [ -n "$(docker ps -q -f "name=${name}")" ]; then
     docker exec "$name" "lab-asst" -l
-    exec docker attach "$name"
+    exec docker exec -it -u "$user" "$name" "/bin/bash"
 else
     exec docker run -it --rm --name "$name" \
       --network host --cap-add SYS_ADMIN --cap-add DAC_READ_SEARCH \
