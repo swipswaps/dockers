@@ -98,10 +98,12 @@ pip3.8 install black
 
 # Step 2 - Pack the dumpling with lots of veggies and steam it.
 # Install Python packages for data science.
+# setuptools needs to be installed first for cython.
 # Cython needs to be installed first for fastparquet, used by dask.
 # We can remove fastparquet once dask fully supports pyarrow.
 grep -v "#" /srv/dumpling_packages.txt > /srv/tmp.txt
 mv /srv/tmp.txt /srv/dumpling_packages.txt
+pip3 install --no-cache-dir setuptools
 pip3 install --no-cache-dir cython
 pip3 install --no-cache-dir -r /srv/dumpling_packages.txt
 
