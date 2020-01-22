@@ -6,6 +6,7 @@ set -eux
 # Set timezone to America/New_York.
 ln -sf /usr/share/zoneinfo/America/New_York /etc/localtime
 
+
 # Install Python development tools, compilers, and build dependencies.
 # apt-transport-https is needed for installing nodejs.
 # bzip2, tar, wget are needed to download phantomjs.
@@ -13,6 +14,8 @@ ln -sf /usr/share/zoneinfo/America/New_York /etc/localtime
 # git is needed to download oaglib.
 # gnupg is needed to authenticate the install of nodejs.
 # graphviz is needed for dask.dataframe.DataFrame.visualize
+# locales is needed to allow for installing Python packages that use unicode
+# characters.
 # lsb-release is used with nodejs to determine what distro release we're using.
 # proj-bin is needed for pyproj.
 # unixodbc-dev is needed to build pyodbc.
@@ -30,6 +33,7 @@ apt-get install -qy --no-install-recommends \
    gnupg \
    graphviz \
    libffi-dev \
+   locales \
    lsb-release \
    proj-bin \
    python3-dev \
@@ -41,6 +45,13 @@ apt-get install -qy --no-install-recommends \
    unixodbc-dev \
    virtualenv \
    wget
+
+# Set locale to en-US UTF-8
+locale-gen en_US.UTF-8
+# sets new locale in dpkg to en-US UTF-8 and makes it default
+printf "152\n3" | dpkg-reconfigure locales
+update-locale LANG=en_US.UTF-8
+export LANG=en_US.UTF-8
 
 # Install NodeJS for use with Jupyter.
 wget --quiet -O - https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -
