@@ -18,18 +18,18 @@ function list() {
     echo "PID PARENT CPU MEM TIME_STARTED TYPE DIRECTORY URL" >> $OUTPUT
     # sed: turn unknown number of whitespace into one space
     # shellcheck disable=SC2009
-    ps -axo pid,ppid,%cpu,%mem,start_time,args | grep jupyter | grep -v grep | sed -r 's/\s+ / /g' | while read -r item
+    ps -axo user,pid,ppid,%cpu,%mem,start_time,args | grep jupyter | grep -v grep | grep "$USER" | sed -r 's/\s+ / /g' | while read -r item
     do
 	# shellcheck disable=SC2086
-	pid=$(echo $item | cut -d ' ' -f1)
+	pid=$(echo $item | cut -d ' ' -f2)
 	# shellcheck disable=SC2086
-	parent=$(echo $item | cut -d ' ' -f2)
+	parent=$(echo $item | cut -d ' ' -f3)
 	# shellcheck disable=SC2086
-	cpu=$(echo $item | cut -d ' ' -f3)
+	cpu=$(echo $item | cut -d ' ' -f4)
 	# shellcheck disable=SC2086
-	mem=$(echo $item | cut -d ' ' -f4)
+	mem=$(echo $item | cut -d ' ' -f5)
         # shellcheck disable=SC2086
-	time=$(echo $item | cut -d ' ' -f5)
+	time=$(echo $item | cut -d ' ' -f6)
         # shellcheck disable=SC2012
 	# shellcheck disable=SC2086
 	working_dir=$(ls -lad /proc/$pid/cwd | cut -d ' ' -f11)
@@ -38,8 +38,10 @@ function list() {
         else
             type="notebook"
             # port number needed to determine what URL this notebook is using, pulled from config file
-            # that corresponds to listening port number
-            file="/home/$USER/.local/share/jupyter/runtime/nbserver-$pid.json"
+            # shellcheck disable=SC2010
+            filename=$(ls -la "/home/$USER/.local/share/jupyter/runtime" | grep "$time" | grep json | cut -d ' ' -f10)
+            # shellcheck disable=SC2116
+            file=$(echo "/home/$USER/.local/share/jupyter/runtime/$filename")
             # shellcheck disable=SC2086
 	    # shellcheck disable=SC2002
 	    token=$(cat $file 2>/dev/null | grep token | cut -d ':' -f2- | tr -d '"' | tr -d ' ' | tr -d ',')

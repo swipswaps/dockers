@@ -28,9 +28,6 @@ dumpling-image "$1" "$2" bash -c "python -c 'from graphviz import Digraph; dot=D
 # jenkspy
 dumpling-image "$1" "$2" bash -c 'pip install jenkspy && python -c "import jenkspy"'
 
-# lab-asst
-dumpling-image "$1" "$2" bash -c '/usr/local/bin/lab-asst | grep Usage'
-
 # numpy
 dumpling-image "$1" "$2" bash -c 'python -c "import numpy as np; assert np.array([1]) + np.array([1]) == 2"'
 dumpling-image "$1" "$2" bash -c 'find /usr/local -name "libopenblas*.so"'

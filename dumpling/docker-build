@@ -87,8 +87,8 @@ apt-get install -qy --no-install-recommends \
     xz-utils \
     zlib1g-dev
 # Build and install python3.8, then pip install black in 3.8.
-wget -qO /srv/Python-3.8.0.tgz https://www.python.org/ftp/python/3.8.0/Python-3.8.0.tgz
-cd /srv
+wget -qO /tmp/Python-3.8.0.tgz https://www.python.org/ftp/python/3.8.0/Python-3.8.0.tgz
+cd /tmp
 tar xvf Python-3.8.0.tgz
 cd Python-3.8.0
 ./configure --enable-optimizations
@@ -172,7 +172,6 @@ echo '. /srv/bash_logout' >> /etc/bash.bash.logout
 ln -s /srv/gitconfig /etc/.
 mkdir /etc/jupyter
 ln -s /srv/jupyter_notebook_config.py /etc/jupyter/.
-ln -s /srv/lab-asst /usr/local/bin/lab-asst
 
 # Default to UTF-8 locale.
 echo 'en_US.UTF-8 UTF-8' > /etc/locale.gen
