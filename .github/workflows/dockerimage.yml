@@ -14,8 +14,4 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - name: Build the Docker image
-<<<<<<< HEAD
-      run: docker build . --file Dockerfile --tag nysoag/dumpling:$(date +%s)
-=======
       run: docker build . --file dumpling/Dockerfile --tag nysoag/dumpling:$(date +%s)
->>>>>>> fix dockerfile
