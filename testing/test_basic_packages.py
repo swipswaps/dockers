@@ -23,10 +23,11 @@ def test_pandas_read_csv():
 def test_matplotlib():
     import matplotlib.pyplot as plt
     import pandas as pd
+    import numpy as np
 
     # TODO: convert to using mock data
 
-    x = np.arange(0. 5, 0.1)
+    x = np.arange(0.5, 0.1)
     y = np.sin(x)
     plt.plot(x, y)
 
@@ -98,5 +99,10 @@ def test_contextily():
 
     assert proj
     assert ctx.sources.ST_TONER == 'http://tile.stamen.com/toner/tileZ/tileX/tileY.png'  # noqa: E501
+
+def test_requests():
+    import requests
+    get = requests.get('https://www.google.com')
+    assert get.status_code == 200
 
 # TODO: boto3, camelot, dask, requests, jupyter, tabula
