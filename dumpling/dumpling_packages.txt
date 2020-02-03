@@ -75,7 +75,6 @@ selenium==3.141.0
 # FREEZE: cbor2 required
 setuptools>=36.2.7
 # END FREEZE
-=======
 six==1.13.0
 sqlalchemy-redshift==0.7.5
 statsmodels==0.10.2
