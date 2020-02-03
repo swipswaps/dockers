@@ -1,0 +1,53 @@
+#!/bin/bash
+
+if [ $# -lt 2 ]; then
+    echo "Usage: $0 [image-name] [container-name]"
+    exit
+fi
+
+set -euxo pipefail
+
+dumpling-image "$1" "$2" bash -c 'whoami' | grep "$(whoami)"
+
+# awscli
+(dumpling-image "$1" "$2" bash -c 'AWS_ACCESS_KEY_ID=dummy AWS_SECRET_ACCESS_KEY=dummy aws s3 ls s3://' || true) | grep InvalidAccessKeyId
+
+# dask
+dumpling-image "$1" "$2" bash -c "python -c 'import dask.dataframe as dd; import pandas as pd; dd.from_pandas(pd.DataFrame(), npartitions=3).compute()'"
+dumpling-image "$1" "$2" bash -c "python -c 'import dask.dataframe as dd; import pandas as pd; dd.from_pandas(pd.DataFrame(), npartitions=3).visualize(\"/tmp/mydask\")'"
+
+# gdal
+dumpling-image "$1" "$2" bash -c 'python -c "from osgeo import gdal"'
+
+# git
+dumpling-image "$1" "$2" bash -c 'git --version' | grep 'git version 2\.'
+
+# graphviz
+dumpling-image "$1" "$2" bash -c "python -c 'from graphviz import Digraph; dot=Digraph(); dot.node(\"A\"); dot.render(\"/tmp/dot\")'"
+
+# jenkspy
+dumpling-image "$1" "$2" bash -c 'pip install jenkspy && python -c "import jenkspy"'
+
+# numpy
+dumpling-image "$1" "$2" bash -c 'python -c "import numpy as np; assert np.array([1]) + np.array([1]) == 2"'
+dumpling-image "$1" "$2" bash -c 'find /usr/local -name "libopenblas*.so"'
+dumpling-image "$1" "$2" bash -c 'find /usr/local -name "lapack*.so" -print0 | xargs -0 -r ldd' | grep openblas
+dumpling-image "$1" "$2" bash -c 'python -c "import numpy as np; np.show_config()"' | grep "'openblas'"
+
+# oaglib
+dumpling-image "$1" "$2" bash -c 'python -c "from oaglib.db.redshift import getredshiftconnect"'
+
+# python
+dumpling-image "$1" "$2" bash -c 'python --version' | grep 'Python 3\.'
+dumpling-image "$1" "$2" bash -c 'python3 --version' | grep 'Python 3\.'
+dumpling-image "$1" "$2" bash -c 'pip --version' | grep 'python 3\.'
+dumpling-image "$1" "$2" bash -c 'pip3 --version' | grep 'python 3\.'
+
+# scipy
+dumpling-image "$1" "$2" bash -c 'python -c "from scipy.linalg import _fblas, _flapack"'
+
+# selenium
+dumpling-image "$1" "$2" bash -c "python -c 'from selenium import webdriver; driver = webdriver.PhantomJS(service_log_path=\"/tmp/ghostdriver.log\"); driver.get(\"https://example.com/\")'"
+
+# tmux
+dumpling-image "$1" "$2" bash -c 'tmux -c /bin/true'

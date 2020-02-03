@@ -1,5 +1,4 @@
-#!/bin/sh
-
+#!/bin/bash
 set -eux
 
 # Step 1 - Prepare the dough for the dumpling.
@@ -8,9 +7,11 @@ set -eux
 ln -sf /usr/share/zoneinfo/America/New_York /etc/localtime
 
 # Install Python development tools, compilers, and build dependencies.
+# apt-transport-https is needed for installing nodejs.
 # bzip2, tar, wget are needed to download phantomjs.
 # default-jre needed for Tabula.
 # git is needed to download oaglib.
+# gnupg is needed to authenticate the install of nodejs.
 # graphviz is needed for dask.dataframe.DataFrame.visualize
 # locales is needed to allow for installing Python packages that use unicode
 # characters.
@@ -22,11 +23,13 @@ ln -sf /usr/share/zoneinfo/America/New_York /etc/localtime
 
 apt-get -qq update
 apt-get install -qy --no-install-recommends \
+   apt-transport-https \
    bzip2 \
    default-jre \
    g++ \
    gcc \
    git \
+   gnupg \
    graphviz \
    libffi-dev \
    locales \
@@ -133,6 +136,7 @@ apt-get install -qy --no-install-recommends \
    bash-completion \
    bc \
    cifs-utils \
+   cookiecutter \
    cowsay \
    curl \
    dnsutils \

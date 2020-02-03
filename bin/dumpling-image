@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Clone of the dumpling Docker shell script but allows for specifying
+# what image to run against
+
 # Run a shell in the dumpling Docker container as the host user
 # with some features accessible from within the container:
 #
@@ -9,37 +12,29 @@
 
 set -eu
 
+if [ $# -lt 2 ]; then
+  echo "Usage: $0 [image-name] [container-name] [command_to_run - optional]"
+  exit
+fi
+
 # Start the SSH authentication agent if it is not already running.
 # This is useful for holding and forwarding SSH keys.
 if [ -z "${SSH_AUTH_SOCK-}" ]; then
   eval "$(ssh-agent)" > /dev/null
 fi
 
-# Update Docker image unless running in Travis CI.
-# Also, since a --quiet option does not exist, hide the output
-# that is otherwise displayed when the local copy is up-to-date.
-if [ "${CI-}" != true ]; then
-  docker pull nysoag/dumpling | \
-  grep -v -e '^Using default tag' -e '^Trying to pull' \
-  -e '^latest' -e '^Digest' && true
-fi
-
 # Use the username of the user calling this script, via sudo or not,
 # when naming and running the Docker container.
 user="${SUDO_USER-$USER}"
-name="${user}-dumpling"
-
-if [ "$#" -ne 0 ]; then
-  # Arguments were provided - append a unique string to create
-  # a Docker container with a different name.
-  name="${name}-$(uuidgen | cut -d- -f1)"
-fi
+image=$1
+name=$2
 
 if [ -n "$(docker ps -q -f "name=${name}")" ]; then
-    lab-asst -l
-    exec docker exec -it -u "$user" "$name" "/bin/bash"
+    docker exec "$name" "lab-asst" -l
+    exec docker attach "$name"
 else
-    exec docker run -it --rm --name "$name" \
+    # shellcheck disable=SC2039
+    exec docker run -it --rm --name "$name"\
       --network host --cap-add SYS_ADMIN --cap-add DAC_READ_SEARCH \
       -v /home:/home \
       -v /etc/group:/etc/group.host:ro \
@@ -50,5 +45,5 @@ else
       -e SSH_AUTH_SOCK=/tmp/ssh \
       -e "USER=${user}" \
       -e PORT1 -e PORT2 -e PORT3 -e PORT4 -e BOLTPORT -e NEOPORT \
-      nysoag/dumpling "$@"
+      "$image" "${@:3}"
 fi
