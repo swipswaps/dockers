@@ -11,6 +11,7 @@ def test_pandas_excel():
     )
     assert df.shape == df2.shape
 
+
 def test_pandas_read_csv():
     import pandas as pd
     # TODO: actually get correct path
@@ -20,9 +21,10 @@ def test_pandas_read_csv():
     assert df.shape == (1, 6)
 
 # TODO: new path or query
+
+
 def test_matplotlib():
     import matplotlib.pyplot as plt
-    import pandas as pd
     import numpy as np
 
     # TODO: convert to using mock data
@@ -64,6 +66,7 @@ def test_multiprocessing():
         0.14285714285714285,
     ]
 
+
 def test_itertools():
     from itertools import product
 
@@ -99,6 +102,7 @@ def test_contextily():
 
     assert proj
     assert ctx.sources.ST_TONER == 'http://tile.stamen.com/toner/tileZ/tileX/tileY.png'  # noqa: E501
+
 
 def test_requests():
     import requests
