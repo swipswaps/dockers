@@ -14,8 +14,9 @@ function usage() {
 
 function list() {
     echo "Gathering information..."
-    OUTPUT=/tmp/output
-    echo "PID PARENT CPU MEM TIME_STARTED TYPE DIRECTORY URL" >> $OUTPUT
+    OUTPUT=/tmp/output-$RANDOM
+    touch $OUTPUT
+    echo "PID|PARENT|CPU|MEM|TIME_STARTED|TYPE|DIRECTORY|URL" >> $OUTPUT
     # sed: turn unknown number of whitespace into one space
     # shellcheck disable=SC2009
     ps -axo user,pid,ppid,%cpu,%mem,start_time,args | grep jupyter | grep -v grep | grep "$USER" | sed -r 's/\s+ / /g' | while read -r item
@@ -32,35 +33,39 @@ function list() {
 	time=$(echo $item | cut -d ' ' -f6)
         # shellcheck disable=SC2012
 	# shellcheck disable=SC2086
-	working_dir=$(ls -lad /proc/$pid/cwd | cut -d ' ' -f11)
+    if [ -d "$(echo $time | grep -E '[0-9]+\:[0-9]+')" ]; then
+        month=$(echo $time | cut -c1-3)
+        day=$(echo $time | cut -c4-)
+        time=$("$month $day")
+    fi
+	working_dir=$(readlink -f /proc/"$pid"/cwd)
         if pgrep -f -P "$parent" ipykernel_launcher 2> /dev/null >/dev/null; then
             type="kernel"
         else
             type="notebook"
+            container_id=$(docker ps | awk '{ print $1 }' | grep -v "CONTAINER" \
+            | xargs docker inspect -f '{{.State.Pid}} {{.Id}}' | grep "$parent" | cut -d ' ' -f2)
+            orig_proc=$(docker exec -u "$USER" "$container_id"  /bin/ps -axo pid,ppid,args | grep jupyter-lab | grep -v grep | awk '{print $1}')
             # port number needed to determine what URL this notebook is using, pulled from config file
             # shellcheck disable=SC2010
-            filename=$(ls -la "/home/$USER/.local/share/jupyter/runtime" | grep "$time" | grep json | cut -d ' ' -f10)
+            file="/home/$USER/.local/share/jupyter/runtime/nbserver-$orig_proc.json"
             # shellcheck disable=SC2116
-            file=$(echo "/home/$USER/.local/share/jupyter/runtime/$filename")
-            # shellcheck disable=SC2086
 	    # shellcheck disable=SC2002
-	    token=$(cat $file 2>/dev/null | grep token | cut -d ':' -f2- | tr -d '"' | tr -d ' ' | tr -d ',')
-            # shellcheck disable=SC2086
+	    token=$(cat "$file" 2>/dev/null | grep token | cut -d ':' -f2- | tr -d '"' | tr -d ' ' | tr -d ',')
 	    # shellcheck disable=SC2002
-	    part_url=$(cat $file 2>/dev/null | grep http | cut -d ':' -f2- | tr -d '"' | tr -d ' ')
+	    part_url=$(cat "$file" 2>/dev/null | grep http | cut -d ':' -f2- | tr -d '"' | tr -d ' ')
             url="$part_url?token=$token"
 
         fi
         if [ "$type" == "kernel" ]; then
-            echo "$pid $parent $cpu $mem $time $type $working_dir" >> $OUTPUT
+            echo "$pid|$parent|$cpu|$mem|$time|$type|$working_dir" >> $OUTPUT
         else
-            echo "$pid $parent $cpu $mem $time $type $working_dir $url" >> $OUTPUT
+            echo "$pid|$parent|$cpu|$mem|$time|$type|$working_dir|$url" >> $OUTPUT
         fi
     done
     # organize output into columns
     # shellcheck disable=SC2002
-    cat $OUTPUT | column -t
-    rm /tmp/output
+    cat $OUTPUT | column -t -s "|"
 }
 
 function stop() {

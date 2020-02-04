@@ -6,6 +6,7 @@ SQLAlchemy==1.3.11
 Scrapy==1.8.0
 Shapely==1.6.4.post2
 Unidecode==1.1.1
+asciinema==2.0.2
 awscli==1.16.293
 beautifulsoup4==4.8.1
 bokeh==1.4.0
@@ -13,6 +14,7 @@ boto3==1.10.29
 cachey==0.1.1
 camelot-py==0.7.3
 census_area==0.3.2
+censusdata==1.6
 censusgeocode==0.4.3.post1
 civis==1.11.0
 ckanapi==4.3
@@ -32,6 +34,7 @@ fuzzywuzzy==0.17.0
 geopandas==0.6.2
 googlemaps==3.1.4
 graphviz==0.13.2
+httplib2==0.16.0
 # FREEZE: plotly required
 ipywidgets==7.5.0
 jupyterlab==1.2.0
@@ -41,17 +44,21 @@ line-profiler==2.1.2
 lxml==4.4.2
 matplotlib==3.0.3
 memory-profiler==0.55.0
+nameparser==1.0.5
 nbdiff==1.0.3
 neo4j-driver==1.7.6
 neo4j==1.7.6
 neobolt==1.7.15
+nltk==3.4.5
 # FREEZE: pandas required
 numpy>=1.13.3
 # END FREEZE
 opencv-python==4.1.2.30
-pandas-datareader==0.8.1
 pandas==0.25.3
+pandas-datareader==0.8.1
+pandas-profiling[notebook,html]==2.4.0
 pdfminer.six==20191110
+pip==20.0.2
 plotly==4.3.0
 pre-commit==1.20.0
 probablepeople==0.5.4
