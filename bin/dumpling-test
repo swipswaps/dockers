@@ -42,7 +42,7 @@ dumpling bash -c 'pip3 --version' | grep 'python 3\.'
 dumpling bash -c 'python -c "from scipy.linalg import _fblas, _flapack"'
 
 # selenium
-dumpling bash -c "python -c 'from selenium import webdriver; driver = webdriver.PhantomJS(service_log_path=\"/tmp/ghostdriver.log\"); driver.get(\"https://example.com/\")'"
+dumpling bash -c "DISPLAY=localhost:10.0 python -c 'from selenium import webdriver; driver = webdriver.PhantomJS(service_log_path=\"/tmp/ghostdriver.log\"); driver.get(\"https://example.com/\")'"
 
 # tmux
 dumpling bash -c 'tmux -c /bin/true'

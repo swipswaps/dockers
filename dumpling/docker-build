@@ -25,6 +25,7 @@ apt-get -qq update
 apt-get install -qy --no-install-recommends \
    apt-transport-https \
    bzip2 \
+   curl \
    default-jre \
    g++ \
    gcc \
@@ -44,6 +45,13 @@ apt-get install -qy --no-install-recommends \
    unixodbc-dev \
    virtualenv \
    wget
+
+apt-get install -y firefox-esr
+latest=$(curl https://github.com/mozilla/geckodriver/releases/latest | grep tag | cut -d '/' -f8 | cut -d '"' -f1)
+wget --no-verbose -O geckodriver.tar.gz "https://github.com/mozilla/geckodriver/releases/download/$latest/geckodriver-$latest-linux64.tar.gz"
+tar -zxf geckodriver.tar.gz
+mv geckodriver /usr/local/bin
+rm geckodriver.tar.gz
 
 # Set locale to en-US UTF-8
 locale-gen en_US.UTF-8
@@ -116,16 +124,17 @@ jupyter labextension install @jupyterlab/toc
 jupyter lab build
 unset NODE_OPTIONS
 
-# Install PhantomJS as a Selenium WebDriver.
+# Install Firefox as a Selenium WebDriver.
 # TODO: automatically find the latest version of PhantomJS.
 # It would be nice to use the Debian package but there are bugs:
 # https://bugs.debian.org/cgi-bin/pkgreport.cgi?package=phantomjs
-wget --no-verbose --no-hsts -O phantomjs.tar.bz2 \
-    https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x86_64.tar.bz2
-tar --wildcards --strip-components=2 -xf phantomjs.tar.bz2 \
-    'phantomjs*/bin/phantomjs'
-mv phantomjs /usr/local/bin
-rm phantomjs.tar.bz2
+#wget --no-verbose --no-hsts -O phantomjs.tar.bz2 \
+#    https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x86_64.tar.bz2
+#tar --wildcards --strip-components=2 -xf phantomjs.tar.bz2 \
+#    'phantomjs*/bin/phantomjs'
+#mv phantomjs /usr/local/bin
+#rm phantomjs.tar.bz2
+
 
 # Step 3 - Add some dipping sauce to the dumpling.
 # Install Debian packages for convenient CLI work.
