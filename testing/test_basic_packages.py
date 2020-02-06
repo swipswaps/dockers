@@ -109,6 +109,7 @@ def test_requests():
     get = requests.get('https://www.google.com')
     assert get.status_code == 200
 
+
 def test_camelot():
     import camelot
     tables = camelot.read_pdf('test_pdf.pdf')
