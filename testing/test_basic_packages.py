@@ -3,11 +3,11 @@ def test_pandas_excel():
 
     # TODO: actually get correct path
     xl = pd.ExcelFile(
-        '/srv/test_excel_workbook.xlsx'
+        'test_excel_workbook.xlsx'
     )
     df = xl.parse()
     df2 = pd.read_excel(
-        '/srv/test_excel_workbook.xlsx'
+        'test_excel_workbook.xlsx'
     )
     assert df.shape == df2.shape
 
@@ -16,7 +16,7 @@ def test_pandas_read_csv():
     import pandas as pd
     # TODO: actually get correct path
     df = pd.read_csv(
-        '/srv/test_csv.csv'  # noqa: E501
+        'test_csv.csv'  # noqa: E501
     )
     assert df.shape == (1, 6)
 
@@ -109,4 +109,9 @@ def test_requests():
     get = requests.get('https://www.google.com')
     assert get.status_code == 200
 
-# TODO: boto3, camelot, dask, requests, jupyter, tabula
+def test_camelot():
+    import camelot
+    tables = camelot.read_pdf('test_pdf.pdf')
+    assert tables[0].shape == (7, 7)
+
+# TODO: boto3, dask, jupyter, tabula
