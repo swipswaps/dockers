@@ -48,17 +48,6 @@ apt-get install -qy --no-install-recommends \
    virtualenv \
    wget
 
-# Install Chromium as a Selenium WebDriver (replaces PhantomJS).
-apt-get install -qy --no-install-recommends chromium
-apt list chromium -a | grep installed | cut -d ' ' -f2 | cut -d '~' -f1
-# determine closest version number
-installed_version=$(apt list chromium -a | grep installed | cut -d ' ' -f2 | cut -d '~' -f1 | cut -d "." -f1,2,3)
-version=$(curl https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$installed_version)
-wget --no-verbose -O chromedriver_linux64.zip "https://chromedriver.storage.googleapis.com/$version/chromedriver_linux64.zip"
-unzip chromedriver_linux64.zip
-mv chromedriver /usr/local/bin
-rm chromedriver_linux64.zip
-
 # Set locale to en-US UTF-8
 locale-gen en_US.UTF-8
 # sets new locale in dpkg to en-US UTF-8 and makes it default
@@ -130,8 +119,16 @@ jupyter labextension install @jupyterlab/toc
 jupyter lab build
 unset NODE_OPTIONS
 
-
-
+# Install Chromium as a Selenium WebDriver (replaces PhantomJS).
+apt-get install -qy --no-install-recommends chromium
+apt list chromium -a | grep installed | cut -d ' ' -f2 | cut -d '~' -f1
+# determine closest version number
+installed_version=$(apt list chromium -a | grep installed | cut -d ' ' -f2 | cut -d '~' -f1 | cut -d "." -f1,2,3)
+version=$(curl https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$installed_version)
+wget --no-verbose -O chromedriver_linux64.zip "https://chromedriver.storage.googleapis.com/$version/chromedriver_linux64.zip"
+unzip chromedriver_linux64.zip
+mv chromedriver /usr/local/bin
+rm chromedriver_linux64.zip
 
 # Step 3 - Add some dipping sauce to the dumpling.
 # Install Debian packages for convenient CLI work.
