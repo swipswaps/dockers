@@ -47,7 +47,7 @@ dumpling-image "$1" "$2" bash -c 'pip3 --version' | grep 'python 3\.'
 dumpling-image "$1" "$2" bash -c 'python -c "from scipy.linalg import _fblas, _flapack"'
 
 # selenium
-dumpling-image "$1" "$2" bash -c "DISPLAY=localhost:10.0 python -c 'from selenium import webdriver; driver = webdriver.Firefox(service_log_path=\"/tmp/ghostdriver.log\"); driver.get(\"https://example.com/\")'"
+dumpling-image "$1" "$2" bash -c "python -c 'from selenium import webdriver; driver = webdriver.Chrome(service_log_path=\"/tmp/ghostdriver.log\"); driver.get(\"https://example.com/\")'"
 
 # tmux
 dumpling-image "$1" "$2" bash -c 'tmux -c /bin/true'

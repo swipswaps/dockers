@@ -18,6 +18,7 @@ ln -sf /usr/share/zoneinfo/America/New_York /etc/localtime
 # lsb-release is used with nodejs to determine what distro release we're using.
 # proj-bin is needed for pyproj.
 # unixodbc-dev is needed to build pyodbc.
+# unzip is needed to extract the archives pulled for Chromium.
 # GDAL depends on specific versions of its C/C++ libraries, so just
 # install the Debian package instead of building from source.
 
@@ -43,15 +44,20 @@ apt-get install -qy --no-install-recommends \
    python3-wheel \
    tar \
    unixodbc-dev \
+   unzip \
    virtualenv \
    wget
 
-apt-get install -y firefox-esr
-latest=$(curl https://github.com/mozilla/geckodriver/releases/latest | grep tag | cut -d '/' -f8 | cut -d '"' -f1)
-wget --no-verbose -O geckodriver.tar.gz "https://github.com/mozilla/geckodriver/releases/download/$latest/geckodriver-$latest-linux64.tar.gz"
-tar -zxf geckodriver.tar.gz
-mv geckodriver /usr/local/bin
-rm geckodriver.tar.gz
+# Install Chromium as a Selenium WebDriver (replaces PhantomJS).
+apt-get install -qy --no-install-recommends chromium
+apt list chromium -a | grep installed | cut -d ' ' -f2 | cut -d '~' -f1
+# determine closest version number
+installed_version=$(apt list chromium -a | grep installed | cut -d ' ' -f2 | cut -d '~' -f1 | cut -d "." -f1,2,3)
+version=$(curl https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$installed_version)
+wget --no-verbose -O chromedriver_linux64.zip "https://chromedriver.storage.googleapis.com/$version/chromedriver_linux64.zip"
+unzip chromedriver_linux64.zip
+mv chromedriver /usr/local/bin
+rm chromedriver_linux64.zip
 
 # Set locale to en-US UTF-8
 locale-gen en_US.UTF-8
@@ -124,16 +130,7 @@ jupyter labextension install @jupyterlab/toc
 jupyter lab build
 unset NODE_OPTIONS
 
-# Install Firefox as a Selenium WebDriver.
-# TODO: automatically find the latest version of PhantomJS.
-# It would be nice to use the Debian package but there are bugs:
-# https://bugs.debian.org/cgi-bin/pkgreport.cgi?package=phantomjs
-#wget --no-verbose --no-hsts -O phantomjs.tar.bz2 \
-#    https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x86_64.tar.bz2
-#tar --wildcards --strip-components=2 -xf phantomjs.tar.bz2 \
-#    'phantomjs*/bin/phantomjs'
-#mv phantomjs /usr/local/bin
-#rm phantomjs.tar.bz2
+
 
 
 # Step 3 - Add some dipping sauce to the dumpling.
@@ -172,7 +169,6 @@ apt-get install -qy --no-install-recommends \
    sudo \
    tree \
    tmux \
-   unzip \
    vim \
    watch
 
