@@ -115,25 +115,29 @@ def test_camelot():
     tables = camelot.read_pdf('test_pdf.pdf')
     assert tables[0].shape == (7, 7)
 
+
 def test_jupyter():
-    import subprocess, requests
+    import subprocess
+    import requests
     # start jupyter lab, don't wait for it to return
-    process = subprocess.Popen(args=["jupyter", "lab"], stdin=None, 
-    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    # get contents of lsof based on pid, will obtain port process is listening on
-    lsof = subprocess.Popen(["lsof", "-i", "-a", "-p", str(process.pid)], stdout=subprocess.PIPE)
+    process = subprocess.Popen(args=['jupyter', 'lab'], stdin=None,
+                               stdout=subprocess.DEVNULL,
+                               stderr=subprocess.DEVNULL)
+    # get contents of lsof based on pid, will obtain port process
+    # is listening on
+    lsof = subprocess.Popen(
+        ['lsof', '-i', '-a', '-p', str(process.pid)], stdout=subprocess.PIPE)
     # get output of grep command
     lsof_output, _ = lsof.communicate()
     # remove header and pull out hostname
     host_line = lsof_output.decode('utf-8').split('\n')[1]
     host = host_line.split()[8]
     # attempt to connect to host, test if 200 response code is obtained
-    get = requests.get("http://" + host)
+    get = requests.get('http://' + host)
     # close processes
     process.terminate()
     lsof.terminate()
     assert get.status_code == 200
-
 
 
 # TODO: boto3, dask, tabula
