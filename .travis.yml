@@ -6,7 +6,7 @@ services:
 before_install:
   - sudo apt-get -qq update
   - sudo apt-get install -y openssh-client shellcheck
-  - sudo pip install pre-commit
+  - sudo pip install six pre-commit
 
 script:
   - pre-commit run --all-files
