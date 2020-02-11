@@ -127,7 +127,7 @@ def test_jupyter():
     # is listening on
     lsof = subprocess.Popen(
         ['lsof', '-i', '-a', '-p', str(process.pid)], stdout=subprocess.PIPE)
-    # get output of grep command
+    # get output of lsof command
     lsof_output, _ = lsof.communicate()
     # remove header and pull out hostname
     host_line = lsof_output.decode('utf-8').split('\n')[1]
