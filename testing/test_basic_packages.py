@@ -122,18 +122,16 @@ def test_jupyter():
     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     # get contents of lsof based on pid, will obtain port process is listening on
     lsof = subprocess.Popen(["lsof", "-i", "-a", "-p", str(process.pid)], stdout=subprocess.PIPE)
-    # grep for line that contains the hostname and a port
-    grep = subprocess.Popen(["egrep", "\w*.\w*.\w*:\d*"], stdin=lsof.stdout, stdout=subprocess.PIPE)
     # get output of grep command
-    grep_output, _ = grep.communicate()
-    # pull hostname out of output using split
-    host = grep_output.decode('utf-8').split()[8]
+    lsof_output, _ = lsof.communicate()
+    # remove header and pull out hostname
+    host_line = lsof_output.decode('utf-8').split('\n')[1]
+    host = host_line.split()[8]
     # attempt to connect to host, test if 200 response code is obtained
-    get = requests.get("http://" + grep_output.decode('utf-8').split()[8])
+    get = requests.get("http://" + host)
     # close processes
     process.terminate()
     lsof.terminate()
-    grep.terminate()
     assert get.status_code == 200
 
 
