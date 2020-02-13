@@ -14,7 +14,7 @@ function usage() {
 
 function list() {
     echo "Gathering information..."
-    OUTPUT=/tmp/output
+    OUTPUT=/tmp/output-$RANDOM
     echo "PID PARENT CPU MEM TIME_STARTED TYPE DIRECTORY URL" >> $OUTPUT
     # sed: turn unknown number of whitespace into one space
     # shellcheck disable=SC2009
@@ -60,7 +60,7 @@ function list() {
     # organize output into columns
     # shellcheck disable=SC2002
     cat $OUTPUT | column -t
-    rm /tmp/output
+    rm /tmp/output-$RANDOM
 }
 
 function stop() {
