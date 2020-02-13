@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
-set -eu
+set -e
 
 # Add users from the host - if bind mounted.
 if [ -r /etc/passwd.host ]; then
@@ -25,6 +25,11 @@ if [ -r /srv/cifs/mounts ]; then
       -o "vers=2.0,credentials=/srv/cifs/credentials,noperm,${options}" \
       "$service" "$mountpoint" || true
   done < /srv/cifs/mounts
+fi
+
+# Change ownership of pyenv to user.
+if [[ "$USER" != "travis" ]]; then
+  chown -R "$USER":datascience /usr/local/pyenv
 fi
 
 # Switch to USER - if environment variable defined.

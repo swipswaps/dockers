@@ -11,5 +11,5 @@ before_install:
 script:
   - pre-commit run --all-files
   - export PATH="$(pwd)/bin:$PATH"
-  - docker build -t nyag/dumpling dumpling
+  - docker build -t nysoag/dumpling dumpling
   - dumpling-test
