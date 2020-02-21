@@ -35,6 +35,11 @@ if [ "$#" -ne 0 ]; then
   name="${name}-$(uuidgen | cut -d- -f1)"
 fi
 
+# If dumpling is already running, attach to that container.
+# Otherwise, start the container. Attach /home, /etc/group, /etc/passwd, 
+# /srv/cifs, and the SSH authentication socket file as volumes.
+# Pass working directory, authentication socket, and username env vars.
+
 if [ -n "$(docker ps -q -f "name=${name}")" ]; then
     #lab-asst -l
     exec docker attach "$name"
