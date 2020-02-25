@@ -139,6 +139,7 @@ def test_jupyter():
     lsof.terminate()
     assert get.status_code == 200
 
+
 def test_tabula():
     import tabula
     df = tabula.read_pdf('test_pdf.pdf', pages='1')
