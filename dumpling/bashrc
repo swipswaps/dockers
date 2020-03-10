@@ -2,6 +2,11 @@
 . /usr/share/bash-completion/bash_completion
 complete -C aws_completer aws
 
+# Activate pyenv
+PATH=$PATH:/usr/local/pyenv/bin
+export PYENV_ROOT=/usr/local/pyenv
+eval "$(pyenv init -)"
+
 # Color terminal prompt with virtualenv and git branch information.
 [ -e "$(which vex)" ] && eval "$(vex --shell-config bash)"
 function virtualenv_prompt() {

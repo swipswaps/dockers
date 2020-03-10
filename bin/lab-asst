@@ -33,7 +33,7 @@ function list() {
 	time=$(echo $item | cut -d ' ' -f6)
         # shellcheck disable=SC2012
 	# shellcheck disable=SC2086
-    if [ -d "$(echo $time | egrep '[0-9]+\:[0-9]+')" ]; then
+    if [ -d "$(echo $time | grep -E '[0-9]+\:[0-9]+')" ]; then
         month=$(echo $time | cut -c1-3)
         day=$(echo $time | cut -c4-)
         time=$("$month $day")
