@@ -86,15 +86,8 @@ RUN apt-get install -qy --no-install-recommends \
     tk-dev \
     xz-utils \
     zlib1g-dev
-# Build and install python3.8, then pip install black in 3.8.
-RUN wget -qO /tmp/Python-3.8.0.tgz https://www.python.org/ftp/python/3.8.0/Python-3.8.0.tgz
-RUN tar xvf /tmp/Python-3.8.0.tgz -C /tmp/
-WORKDIR "/tmp/Python-3.8.0"
-RUN ./configure --enable-optimizations
-RUN make -j8
-RUN make altinstall
-RUN pip3.8 install black
-WORKDIR "/"
+# Install pyenv
+RUN /srv/pyenv-install.sh
 
 # Step 2 - Pack the dumpling with lots of veggies and steam it.
 # Install Python packages for data science.
