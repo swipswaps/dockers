@@ -27,6 +27,9 @@ if [ -r /srv/cifs/mounts ]; then
   done < /srv/cifs/mounts
 fi
 
+# Change ownership of pyenv to user.
+chown -R "$USER":datascience /usr/local/pyenv
+
 # Switch to USER - if environment variable defined.
 # Run sudo when calling apt or pip by creating wrapper scripts
 # in /usr/local/bin that call the real script with sudo.
