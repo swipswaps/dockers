@@ -41,7 +41,7 @@ fi
 # Pass working directory, authentication socket, and username env vars.
 
 if [ -n "$(docker ps -q -f "name=${name}")" ]; then
-    lab-asst -l
+    #lab-asst -l
     exec docker attach "$name"
 else
     exec docker run -it --rm --name "$name" \
