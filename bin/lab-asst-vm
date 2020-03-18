@@ -1,0 +1,203 @@
+#!/usr/bin/env python
+"""Manage Jupyter lab instances from within the VM.
+Needs to use python 2.7 for now.
+"""
+from subprocess import call, check_output, Popen, STDOUT
+from os import getuid, devnull
+from pwd import getpwuid
+from time import sleep
+import argparse
+
+
+class Process:
+    """Class representing a process.
+
+    Keyword arguments:
+    self -- self
+    username -- The username of the process.
+    pid -- The process id of the process from the VM perspective.
+    ppid -- The parent process id of the process from the VM perspective.
+    cpu -- The percentage of CPU currently being used by the process.
+    mem -- The amount of RAM currently being used by the process.
+    start_time -- When the process was started.
+    args -- Command-line arguments of the process when it was started.
+    working_dir -- The working directory of the process. Only displayed for
+    notebooks.
+    type -- Whether this is a notebook or a kernel.
+
+    Optional class attributes:
+    url -- A URL to reach the notebook at, only set for notebooks.
+    kernels -- Kernels spawned by this notebook.
+    """
+
+    def __init__(self, username, pid, ppid, cpu, mem, start_time, args):
+        self.username = username
+        self.pid = pid
+        self.ppid = ppid
+        self.cpu = cpu
+        self.mem = mem
+        self.start_time = start_time
+        self.args = args
+        self.working_dir = check_output(
+            ['readlink', '-f', '/proc/' + self.pid + '/cwd']).rstrip()
+        self.url = None
+        self.kernels = None
+        self.type = self.determine_type()
+
+    def __str__(self):
+        string = self.pid + ' ' + self.ppid + ' ' + \
+            self.cpu + ' ' + self.mem + ' ' + self.start_time + ' ' \
+            + self.type + ' ' + self.working_dir
+        if self.type == 'notebook':
+            string += ' ' + self.url
+        return string
+
+    def return_row(self):
+        """ Return attributes about the process in row form. """
+        if self.type == 'kernel':
+            row = [self.pid, self.ppid, self.cpu, self.mem, self.start_time,
+                   self.type, self.working_dir]
+        else:
+            row = [self.pid, self.ppid, self.cpu, self.mem, self.start_time,
+                   self.type, self.working_dir, self.url]
+        return row
+
+    def determine_type(self):
+        """ Determines the type of the process and performs notebook-specific
+        calculations if the process is a notebook."""
+        with open(devnull, 'w') as outfile:
+            pgrep = call(['/usr/bin/pgrep', '-f', '-P', self.ppid,
+                          'ipykernel_launcher'], stdout=outfile)
+        if pgrep == 0:
+            return 'kernel'
+        else:
+            # cross reference output of lsof in container vs vm
+            # to confirm container process == VM process
+            with open(devnull, 'w') as outfile:
+                vmLsof = check_output(
+                    ['/usr/sbin/lsof', '-P', '-i', '-a', '-p', self.pid],
+                    stderr=outfile
+                )
+            lsofLines = vmLsof.split('\n')
+            port = ''
+            for line in lsofLines:
+                if 'LISTEN' in line:
+                    # value after : is port number, drop rest of line
+                    port = line.split(':')[1].split()[0]
+
+            # get url and token from notebook server config file
+            grep = check_output(['/usr/bin/grep', '-R', '"port": ' + port,
+                                 '/home/' + getpwuid(getuid())[0] +
+                                 '/.local/share/jupyter/runtime/'])
+            filename = grep.split(':')[0]
+            json_pointer = open(filename, 'r')
+            json_contents = json_pointer.read()
+            json_pointer.close()
+            token = ''
+            part_url = ''
+            for line in json_contents.split('\n'):
+                if 'token' in line:
+                    token = line.split(':')[1].lstrip(' \"').rstrip('",')
+                if 'http' in line:
+                    part_url = line.split(':', 1)[1].lstrip(' \"').rstrip('",')
+            if not token or not part_url:
+                print("Couldn't obtain token or URL from server config \
+                        JSON file!")
+                exit(1)
+            self.url = part_url + '?token=' + token
+            self.kernels = []
+            return 'notebook'
+
+
+def gather_info(quiet=False):
+    """ Gathers and displays information on running Jupyter processes. """
+    if not quiet:
+        print('Gathering information...')
+    username = getpwuid(getuid())[0]
+    ps = check_output(['ps', '-eo', 'user,pid,ppid,%cpu,%mem,start_time,args'])
+    notebooks = []
+    notebookPids = {}
+    kernels = []
+    for line in ps.split('\n'):
+        if 'jupyter' in line and 'grep' not in line and username in line:
+            split = line.split()
+            newProcess = Process(split[0], split[1], split[2], split[3],
+                                 split[4], split[5], split[6:])
+            if newProcess.type == 'kernel':
+                kernels.append(newProcess)
+            else:
+                notebooks.append(newProcess)
+                notebookPids[newProcess.pid] = newProcess
+
+    for kernel in kernels:
+        if kernel.ppid in notebookPids.keys():
+            notebookPids[kernel.ppid].kernels.append(kernel)
+
+    header = 'PID PARENT CPU MEM START TYPE DIRECTORY'
+    output = []
+    if quiet:
+        return notebooks
+    for notebook in notebooks:
+        output.append(notebook.return_row())
+        for kernel in notebook.kernels:
+            output.append(kernel.return_row())
+        output.append('=' * len(output[-1]))
+    print(''.join(word.ljust(9) for word in header.split())),
+    print('\tURL')
+    for row in output:
+        if len(row) == 8:
+            print(''.join(word.ljust(9) for word in row[:7])),
+            print(row[7])
+        else:
+            print(''.join(word.ljust(9) for word in row))
+
+
+def stop(process_id):
+    """ Stop the given notebook. If process ID is zero, enumerate all notebooks
+    and kill all pids corresponding to each notebook. """
+    if process_id == 0:
+        print('Gathering all notebooks...')
+        notebooks = gather_info(quiet=True)
+        for notebook in notebooks:
+            kill_process(notebook.pid)
+    else:
+        kill_process(process_id)
+    return
+
+
+def kill_process(pid):
+    """ Actually perform the process kill using subprocess. """
+    outfile = open(devnull, 'w')
+    print('Attempting to gracefully close process ' + str(pid))
+    soft_kill = Popen(['/usr/bin/kill', pid], stderr=STDOUT, stdout=outfile)
+    sleep(3)
+    if Popen.poll(soft_kill) != 0:
+        print('Warning: this notebook is not gracefully closing, which usually'
+              + ' means that you have unsaved work.')
+        answer = input('Would you like to forcefully close the notebook? ')
+        if answer == 'y' or answer == 'Y':
+            force_kill = call(['/usr/bin/kill', '-9', pid])
+            if force_kill != 0:
+                print('Unable to forcefully close process ' + str(pid))
+        else:
+            return
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        description='An assistant for managing Jupyter resources.')
+    parser.add_argument('-l', action='store_true',
+                        help='List running notebooks and kernels.')
+    parser.add_argument('-S', action='store_true',
+                        help='Kill all running notebook servers.')
+    parser.add_argument('-s', action='store', nargs=1, metavar='PID',
+                        help='Kill notebook server with given PID.')
+    args = parser.parse_args()
+    if args.l:
+        gather_info()
+    elif args.s:
+        stop(args.s[0])
+    elif args.S:
+        stop(0)
+    else:
+        parser.print_help()

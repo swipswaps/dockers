@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
-set -eu
+set -e
 
 # Add users from the host - if bind mounted.
 if [ -r /etc/passwd.host ]; then
@@ -28,7 +28,9 @@ if [ -r /srv/cifs/mounts ]; then
 fi
 
 # Change ownership of pyenv to user.
-chown -R "$USER":datascience /usr/local/pyenv
+if [[ "$USER" != "travis" ]]; then
+  chown -R "$USER":datascience /usr/local/pyenv
+fi
 
 # Switch to USER - if environment variable defined.
 # Run sudo when calling apt or pip by creating wrapper scripts

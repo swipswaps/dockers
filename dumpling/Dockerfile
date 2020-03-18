@@ -111,6 +111,10 @@ RUN jupyter lab build
 RUN chmod 770 /srv/chromium-install.sh
 RUN /srv/chromium-install.sh
 
+# Copy lab-asst-dumpling to right location
+RUN cp /srv/lab-asst-dumpling /usr/local/bin/lab-asst
+RUN chmod 755 /usr/local/bin/lab-asst
+
 # Step 3 - Add some dipping sauce to the dumpling.
 # Install Debian packages for convenient CLI work.
 # bash-completion, cowsay, fortune* are used in bashrc.

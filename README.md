@@ -32,23 +32,23 @@ Stopping the kernel ID will just cause Jupyter to restart the kernel.
 ### Usage
 
 ```text
-lab-asst: An assistant for managing Jupyter lab instances.
+usage: lab-asst [-h] [-l] [-S] [-s PID]
 
-Usage: ./lab-asst [argument]
-Possible arguments:
+An assistant for managing Jupyter resources.
 
--l              List all running Jupyter lab instances. Includes time the notebook was opened, CPU usage, and RAM usage.
--s [id]         Stop given Jupyter lab instance gracefully.
-
+optional arguments:
+-l              List running notebooks and kernels.
+-S              Kill all running notebook servers.
+-s PID          Kill notebook server with given PID.
 ```
 
 ### Example output
 
-![screenshot showing listing of lab instances][screenshot_1]
-![screenshot showing instance stop][screenshot_2]
+![screenshot showing listing of notebook servers and stopping one notebook server][stop_one]
+![screenshot showing stopping all servers][stop_all]
 
 [nyag]: https://ag.ny.gov/
 [dumpling]: https://hub.docker.com/r/nyag/dumpling/
 [oaglib]: https://github.com/NYAG/oaglib
-[screenshot_1]: lab-asst_listing.PNG
-[screenshot_2]: lab-asst_stop.PNG
+[stop_all]: stop_all.gif
+[stop_one]: stop_one.gif
