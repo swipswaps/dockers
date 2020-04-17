@@ -13,6 +13,7 @@ RUN ln -sf /usr/share/zoneinfo/America/New_York /etc/localtime
 # git is needed to download oaglib.
 # gnupg is needed to authenticate the install of nodejs.
 # graphviz is needed for dask.dataframe.DataFrame.visualize
+# libgeos, and libproj needed for contextily.
 # locales is needed to allow for installing Python packages that use unicode
 # characters.
 # lsb-release is used with nodejs to determine what distro release we're using.
@@ -33,9 +34,12 @@ RUN apt-get install -qy --no-install-recommends \
    gnupg \
    graphviz \
    libffi-dev \
+   libgeos-dev \
+   libproj-dev \
    locales \
    lsb-release \
    proj-bin \
+   proj-data \
    python3-dev \
    python3-gdal \
    python3-pip \
@@ -93,12 +97,14 @@ RUN /srv/pyenv-install.sh
 # Install Python packages for data science.
 # setuptools needs to be installed first for cython.
 # Cython needs to be installed first for fastparquet, used by dask.
+# llvmlite is needed for fastparquet.
 # We can remove fastparquet once dask fully supports pyarrow.
 RUN grep -v "#" /srv/dumpling_packages.txt > /srv/tmp.txt
 RUN mv /srv/tmp.txt /srv/dumpling_packages.txt
-RUN pip3 install --no-cache-dir setuptools
-RUN pip3 install --no-cache-dir cython
-RUN pip3 install --no-cache-dir -r /srv/dumpling_packages.txt
+RUN pip3 install --no-cache-dir setuptools && \
+pip3 install --no-cache-dir cython && \
+pip3 install --no-cache-dir -i https://pypi.anaconda.org/sklam/simple llvmlite && \
+pip3 install --no-cache-dir -r /srv/dumpling_packages.txt
 
 # TODO: requirements.txt for labextension?
 RUN jupyter labextension install @jupyter-widgets/jupyterlab-manager --no-build
@@ -111,9 +117,18 @@ RUN jupyter lab build
 RUN chmod 770 /srv/chromium-install.sh
 RUN /srv/chromium-install.sh
 
+
+# Orca install steps
+RUN npm install --unsafe-perm=true --allow-root -g electron@6.1.4 orca \
+   && apt install xvfb -y --no-install-recommends \
+   && mv /usr/bin/orca /usr/bin/orca-real \
+   && mv /srv/orca /usr/bin/orca \
+   && chmod 755 /usr/bin/orca
+
 # Copy lab-asst-dumpling to right location
 RUN cp /srv/lab-asst-dumpling /usr/local/bin/lab-asst
 RUN chmod 755 /usr/local/bin/lab-asst
+
 
 # Step 3 - Add some dipping sauce to the dumpling.
 # Install Debian packages for convenient CLI work.
