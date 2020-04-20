@@ -187,6 +187,7 @@ RUN update-locale LANG=en_US.UTF-8
 # Step 5 - Clean the dishes.
 RUN apt-get clean
 RUN rm -rf /var/lib/apt/lists/*
+RUN rm -rf /usr/local/share/.cache
 
 # Serve the chopsticks.
 # Use the entrypoint script to add users from host to the container.
