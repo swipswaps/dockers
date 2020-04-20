@@ -52,11 +52,11 @@ RUN apt-get install -qy --no-install-recommends \
    wget
 
 # Set locale to en-US UTF-8
-RUN locale-gen en_US.UTF-8
 # sets new locale in dpkg to en-US UTF-8 and makes it default
-RUN printf "152\n3" | dpkg-reconfigure locales
-RUN update-locale LANG=en_US.UTF-8
-RUN export LANG=en_US.UTF-8
+RUN locale-gen en_US.UTF-8 && \
+printf "152\n3" | dpkg-reconfigure locales && \
+update-locale LANG=en_US.UTF-8 && \
+export LANG=en_US.UTF-8
 
 # Install NodeJS for use with Jupyter.
 RUN wget --quiet -O - https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -
@@ -66,13 +66,11 @@ RUN wget --quiet -O - https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
 RUN echo "deb https://deb.nodesource.com/node_12.x stretch main" | tee /etc/apt/sources.list.d/nodesource.list
 RUN echo "deb-src https://deb.nodesource.com/node_12.x stretch main" | tee -a /etc/apt/sources.list.d/nodesource.list
 RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee -a /etc/apt/sources.list.d/nodesource.list
-RUN apt-get update
-RUN apt-get install -qy --no-install-recommends nodejs yarn
+RUN apt-get update && apt-get install -qy --no-install-recommends nodejs yarn
 
 # Create a symlink from python/pip to Python 3,
 # since we are not using Python 2.
-RUN ln -s ../../bin/python3 /usr/local/bin/python
-RUN ln -s ../../bin/pip3 /usr/local/bin/pip
+RUN ln -s ../../bin/python3 /usr/local/bin/python && ln -s ../../bin/pip3 /usr/local/bin/pip
 
 # Python 3.8 needed for black.
 RUN apt-get install -qy --no-install-recommends \
@@ -107,15 +105,14 @@ pip3 install --no-cache-dir -i https://pypi.anaconda.org/sklam/simple llvmlite &
 pip3 install --no-cache-dir -r /srv/dumpling_packages.txt
 
 # TODO: requirements.txt for labextension?
-RUN jupyter labextension install @jupyter-widgets/jupyterlab-manager --no-build
-RUN jupyter labextension install jupyterlab-plotly --no-build
-RUN jupyter labextension install plotlywidget --no-build
-RUN jupyter labextension install @jupyterlab/toc
-RUN jupyter lab build
+RUN jupyter labextension install @jupyter-widgets/jupyterlab-manager --no-build && \
+jupyter labextension install jupyterlab-plotly --no-build && \
+jupyter labextension install plotlywidget --no-build && \
+jupyter labextension install @jupyterlab/toc && \
+jupyter lab build
 
 # Install Chromium as a Selenium WebDriver (replaces PhantomJS).
-RUN chmod 770 /srv/chromium-install.sh
-RUN /srv/chromium-install.sh
+RUN chmod 770 /srv/chromium-install.sh && /srv/chromium-install.sh
 
 
 # Orca install steps
@@ -126,8 +123,7 @@ RUN npm install --unsafe-perm=true --allow-root -g electron@6.1.4 orca \
    && chmod 755 /usr/bin/orca
 
 # Copy lab-asst-dumpling to right location
-RUN cp /srv/lab-asst-dumpling /usr/local/bin/lab-asst
-RUN chmod 755 /usr/local/bin/lab-asst
+RUN cp /srv/lab-asst-dumpling /usr/local/bin/lab-asst && chmod 755 /usr/local/bin/lab-asst
 
 
 # Step 3 - Add some dipping sauce to the dumpling.
