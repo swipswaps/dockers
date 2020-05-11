@@ -33,10 +33,12 @@ emoji==0.5.4
 fastparquet==0.3.3
 folium==0.10.1
 fuzzywuzzy==0.18.0
+gensim==3.8.3
 geopandas==0.7.0
 googlemaps==4.2.0
 graphviz==0.13.2
 httplib2==0.17.1
+imbalanced-learn==0.6.2
 # FREEZE: plotly required
 ipywidgets==7.5.0
 jupyterlab==1.2.0
