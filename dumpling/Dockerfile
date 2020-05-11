@@ -174,9 +174,6 @@ RUN apt-get install -qy --no-install-recommends \
 # Enable sudo without a password.
 RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/nopasswd
 
-# Use RAD supplied quotes with fortune.
-RUN rm /usr/share/games/fortunes/* && cp /srv/quotes* /usr/share/games/fortunes
-
 # Modify bashrc to enable bash-completion and other savories.
 # Enable git pull rebase autostash.
 # Configure Jupyter Notebook port.
