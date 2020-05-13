@@ -129,6 +129,8 @@ RUN npm install --unsafe-perm=true --allow-root -g electron@6.1.4 orca \
 RUN cp /srv/lab-asst-dumpling /usr/local/bin/lab-asst
 RUN chmod 755 /usr/local/bin/lab-asst
 
+# Install Python 3.8 packages
+RUN /usr/local/pyenv/versions/3.8.1/bin/pip install -r /srv/dumpling_3.8_packages.txt
 
 # Step 3 - Add some dipping sauce to the dumpling.
 # Install Debian packages for convenient CLI work.
