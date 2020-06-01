@@ -93,6 +93,11 @@ RUN apt-get install -qy --no-install-recommends \
 # Install pyenv
 RUN /srv/pyenv-install.sh
 
+# libspatialindex needed for sparse-dot-topn.
+RUN curl -L -o /srv/spatialindex-src-1.8.5.tar.gz http://download.osgeo.org/libspatialindex/spatialindex-src-1.8.5.tar.gz && \
+cd /srv && tar -zxf spatialindex-src-1.8.5.tar.gz && cd spatialindex-src-1.8.5 && \
+./configure && make && make install && ldconfig
+
 # Step 2 - Pack the dumpling with lots of veggies and steam it.
 # Install Python packages for data science.
 # setuptools needs to be installed first for cython.
@@ -117,7 +122,6 @@ RUN jupyter lab build
 RUN chmod 770 /srv/chromium-install.sh
 RUN /srv/chromium-install.sh
 
-
 # Orca install steps
 RUN npm install --unsafe-perm=true --allow-root -g electron@6.1.4 orca \
    && apt install xvfb -y --no-install-recommends \
@@ -131,6 +135,9 @@ RUN chmod 755 /usr/local/bin/lab-asst
 
 # Install Python 3.8 packages
 RUN /usr/local/pyenv/versions/3.8.1/bin/pip install -r /srv/dumpling_3.8_packages.txt
+
+# Add 3.8.1 kernel
+RUN /usr/local/pyenv/versions/3.8.1/bin/ipython kernel install --name "3.8.1"
 
 # Step 3 - Add some dipping sauce to the dumpling.
 # Install Debian packages for convenient CLI work.
